@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --warm-white: #faf8f5;
+    --charcoal: #1c1c1c;
+    --mid: #6b6560;
+    --light: #b8b0a8;
+    --accent: #c9a96e;
+    --accent-light: #e8d5b0;
+    --border: #e0d8d0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--warm-white);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  /* ══ SETUP SCREEN ══ */
+  #setup {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--charcoal);
+    padding: 2rem;
+  }
+
+  .card {
+    background: var(--warm-white);
+    padding: 3rem 3.5rem;
+    max-width: 560px;
+    width: 100%;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.45);
+  }
+
+  .card h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.3rem;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.3rem;
+  }
+
+  .card > p {
+    color: var(--mid);
+    font-size: 0.82rem;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.03em;
+  }
+
+  .field { margin-bottom: 1.4rem; }
+
+  .field label {
+    display: block;
+    font-size: 0.67rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 0.45rem;
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: var(--charcoal);
+    background: var(--warm-white);
+    outline: none;
+    transition: border-color 0.2s;
+    border-radius: 1px;
+  }
+
+  .field input:focus,
+  .field textarea:focus { border-color: var(--accent); }
+
+  .field textarea { resize: vertical; min-height: 62px; }
+
+  .hint {
+    font-size: 0.7rem;
+    color: var(--light);
+    margin-top: 0.4rem;
+    line-height: 1.55;
+  }
+
+  .hint strong { color: var(--accent); font-weight: 500; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .btn {
+    width: 100%;
+    padding: 0.95rem;
+    background: var(--charcoal);
+    color: var(--warm-white);
+    border: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+    border-radius: 1px;
+  }
+
+  .btn:hover { background: #2e2e2e; }
+
+  /* ══ PASSWORD ══ */
+  #pw-screen {
+    display: none;
+    min-height: 100vh;
+    background: var(--charcoal);
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  #pw-screen.on { display: flex; }
+
+  .pw-box {
+    background: var(--warm-white);
+    padding: 3rem 3.5rem;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .lock-icon {
+    width: 46px; height: 46px;
+    background: var(--accent-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.4rem;
+    color: var(--accent);
+  }
+
+  .pw-box h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.9rem;
+    font-weight: 300;
+    margin-bottom: 0.4rem;
+  }
+
+  .pw-box p { color: var(--mid); font-size: 0.82rem; font-weight: 300; margin-bottom: 1.8rem; }
+
+  .pw-box input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    font-family: 'Jost', sans-serif;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.2em;
+    outline: none;
+    margin-bottom: 0.7rem;
+    border-radius: 1px;
+    transition: border-color 0.2s;
+  }
+
+  .pw-box input:focus { border-color: var(--accent); }
+  .pw-err { color: #c0392b; font-size: 0.76rem; margin-bottom: 0.6rem; min-height: 1.1em; }
+
+  /* ══ GALLERY ══ */
+  #gallery { display: none; }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    height: 100vh; min-height: 560px;
+    background: var(--charcoal);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden; text-align: center;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    opacity: 0; transform: scale(1.06);
+    transition: opacity 1.3s ease, transform 9s ease;
+  }
+
+  .hero-bg.ready { opacity: 0.38; transform: scale(1); }
+
+  .hero-veil {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(28,28,28,0.1) 0%, rgba(28,28,28,0.72) 100%);
+  }
+
+  .hero-body {
+    position: relative; z-index: 2;
+    padding: 2rem;
+    animation: riseIn 1s ease both 0.15s;
+  }
+
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .eyebrow {
+    font-size: 0.6rem; font-weight: 500;
+    letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--accent-light); margin-bottom: 1rem;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 7vw, 5.8rem);
+    font-weight: 300; color: #fff;
+    letter-spacing: 0.04em; line-height: 1.1;
+    margin-bottom: 0.9rem;
+  }
+
+  .hero-desc {
+    font-size: 0.84rem; font-weight: 300;
+    color: rgba(255,255,255,0.62);
+    letter-spacing: 0.06em; margin-bottom: 1.8rem;
+    max-width: 480px; margin-left: auto; margin-right: auto;
+    white-space: pre-line;
+  }
+
+  .hero-chips {
+    display: flex; gap: 2rem;
+    justify-content: center; flex-wrap: wrap;
+  }
+
+  .chip {
+    font-size: 0.67rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: rgba(255,255,255,0.42);
+  }
+
+  .chip span { color: rgba(255,255,255,0.88); font-weight: 500; }
+
+  .scroll-hint {
+    position: absolute; bottom: 2rem; left: 50%;
+    transform: translateX(-50%); z-index: 2;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 0.4rem;
+    animation: bob 2.4s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(7px); }
+  }
+
+  .scroll-line { width: 1px; height: 36px; background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent); }
+  .scroll-lbl { font-size: 0.56rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+
+  /* TOOLBAR */
+  .toolbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,248,245,0.96);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid #ede7df;
+    padding: 0.75rem 2rem;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+
+  .tb-l { display: flex; align-items: center; gap: 1.2rem; }
+
+  .tb-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem; font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  .tb-count {
+    font-size: 0.68rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--light);
+  }
+
+  .tb-r { display: flex; align-items: center; gap: 0.55rem; }
+
+  .ic-btn {
+    width: 34px; height: 34px;
+    border: 1px solid var(--border);
+    background: transparent; border-radius: 1px;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.18s; color: var(--mid);
+  }
+
+  .ic-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .ic-btn.on { background: var(--charcoal); color: white; border-color: var(--charcoal); }
+
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 1.2rem;
+    background: var(--accent); color: white; border: none;
+    border-radius: 1px; font-family: 'Jost', sans-serif;
+    font-size: 0.67rem; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; text-decoration: none;
+    transition: background 0.18s;
+  }
+
+  .dl-btn:hover { background: #b8955d; }
+
+  /* GRID */
+  .wrap {
+    padding: 2.5rem 1.2rem 5rem;
+    max-width: 1700px; margin: 0 auto;
+  }
+
+  .masonry { columns: 3; column-gap: 8px; }
+  .masonry.c2 { columns: 2; }
+  .masonry.c4 { columns: 4; }
+
+  @media (max-width: 860px) { .masonry { columns: 2 !important; } }
+  @media (max-width: 480px) { .masonry { columns: 1 !important; } }
+
+  .photo {
+    break-inside: avoid; margin-bottom: 8px;
+    position: relative; overflow: hidden;
+    cursor: zoom-in; background: #ede5db;
+  }
+
+  .photo img {
+    width: 100%; display: block;
+    opacity: 0; transition: transform 0.5s ease, opacity 0.35s;
+  }
+
+  .photo img.vis { opacity: 1; }
+  .photo:hover img { transform: scale(1.045); }
+
+  .photo-hov {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(18,18,18,0.72) 0%, transparent 55%);
+    opacity: 0; transition: opacity 0.25s;
+    display: flex; flex-direction: column;
+    justify-content: flex-end; padding: 0.85rem;
+  }
+
+  .photo:hover .photo-hov { opacity: 1; }
+
+  .p-btns { display: flex; gap: 0.45rem; }
+
+  .p-btn {
+    width: 30px; height: 30px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.18s;
+    color: white; text-decoration: none;
+  }
+
+  .p-btn:hover { background: rgba(255,255,255,0.26); }
+  .p-btn.fav { background: rgba(201,169,110,0.55); border-color: var(--accent); }
+
+  /* STATES */
+  #loading, #error {
+    text-align: center; padding: 6rem 2rem;
+  }
+
+  #error { display: none; }
+
+  .spinner {
+    width: 28px; height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    margin: 0 auto 1.3rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #loading p, #error p {
+    font-size: 0.8rem; font-weight: 300;
+    letter-spacing: 0.06em; color: var(--mid);
+    max-width: 420px; margin: 0 auto; line-height: 1.7;
+  }
+
+  #error h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem; font-weight: 300;
+    margin-bottom: 0.7rem;
+  }
+
+  .retry-btn {
+    margin-top: 1.5rem;
+    padding: 0.65rem 1.8rem;
+    background: var(--charcoal); color: white; border: none;
+    font-family: 'Jost', sans-serif; font-size: 0.7rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; border-radius: 1px;
+  }
+
+  /* LIGHTBOX */
+  #lb {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(10,10,10,0.97);
+    display: none; align-items: center; justify-content: center;
+  }
+
+  #lb.on { display: flex; animation: lbIn 0.18s ease; }
+
+  @keyframes lbIn { from { opacity: 0; } to { opacity: 1; } }
+
+  #lb-wrap {
+    max-width: 90vw; max-height: 88vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  #lb-img {
+    max-width: 90vw; max-height: 88vh;
+    object-fit: contain; display: block;
+    animation: lbImg 0.2s ease;
+  }
+
+  @keyframes lbImg {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .lb-x {
+    position: fixed; top: 1.3rem; right: 1.3rem;
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: rgba(255,255,255,0.75);
+    transition: background 0.18s; z-index: 10;
+  }
+
+  .lb-x:hover { background: rgba(255,255,255,0.16); }
+
+  .lb-arr {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    width: 50px; height: 50px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: rgba(255,255,255,0.75);
+    transition: background 0.18s; z-index: 10;
+  }
+
+  .lb-arr:hover { background: rgba(255,255,255,0.14); }
+  .lb-prev { left: 1.3rem; }
+  .lb-next { right: 1.3rem; }
+
+  .lb-bar {
+    position: fixed; bottom: 1.3rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 1.3rem;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 40px; padding: 0.55rem 1.4rem;
+    white-space: nowrap; z-index: 10;
+  }
+
+  .lb-num { font-size: 0.68rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.42); }
+
+  .lb-sep { width: 1px; height: 13px; background: rgba(255,255,255,0.14); }
+
+  .lb-act {
+    display: flex; align-items: center; gap: 0.35rem;
+    font-family: 'Jost', sans-serif; font-size: 0.67rem;
+    font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.62); cursor: pointer;
+    border: none; background: none; text-decoration: none;
+    transition: color 0.18s; padding: 0;
+  }
+
+  .lb-act:hover { color: var(--accent); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 4.5rem; left: 50%;
+    transform: translateX(-50%) translateY(14px);
+    background: var(--charcoal); color: white;
+    padding: 0.62rem 1.4rem; border-radius: 2px;
+    font-size: 0.72rem; letter-spacing: 0.07em;
+    pointer-events: none; opacity: 0;
+    transition: all 0.26s; white-space: nowrap; z-index: 2000;
+  }
+
+  .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* FAB */
+  .fab {
+    position: fixed; bottom: 1.4rem; right: 1.4rem;
+    width: 42px; height: 42px;
+    background: var(--charcoal); color: white; border: none;
+    border-radius: 50%; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+    transition: background 0.18s; z-index: 500;
+  }
+
+  .fab.on { display: flex; }
+  .fab:hover { background: #333; }
+
+  footer {
+    text-align: center; padding: 2rem;
+    border-top: 1px solid #ede7df;
+    font-size: 0.67rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--light);
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP ══ -->
+<div id="setup">
+  <div class="card">
+    <h1>Photo Gallery</h1>
+    <p>Deliver photos to your clients using just a Google Drive folder link</p>
+
+    <div class="field">
+      <label>Google Drive Folder Link</label>
+      <input type="url" id="s-folder" placeholder="https://drive.google.com/drive/folders/...">
+      <div class="hint">
+        In Google Drive: right-click your folder → <strong>Share</strong> → set to <strong>"Anyone with the link"</strong> → copy link and paste above.
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Gallery Title</label>
+      <input type="text" id="s-title" placeholder="e.g. Sarah & James · Wedding Day">
+    </div>
+
+    <div class="field">
+      <label>Subtitle</label>
+      <textarea id="s-sub" placeholder="e.g. June 14, 2025 · The Grand Ballroom, New York"></textarea>
+    </div>
+
+    <div class="two">
+      <div class="field">
+        <label>Photographer Name</label>
+        <input type="text" id="s-photog" placeholder="Your Studio">
+      </div>
+      <div class="field">
+        <label>Password (optional)</label>
+        <input type="text" id="s-pass" placeholder="Leave blank = public">
+      </div>
+    </div>
+
+    <button class="btn" onclick="launch()">Open Gallery →</button>
+  </div>
+</div>
+
+<!-- ══ PASSWORD ══ -->
+<div id="pw-screen">
+  <div class="pw-box">
+    <div class="lock-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <h2>Private Gallery</h2>
+    <p>Enter the password to view your photos</p>
+    <input type="password" id="pw-in" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="pw-err" id="pw-err"></div>
+    <button class="btn" onclick="checkPw()">View Gallery →</button>
+  </div>
+</div>
+
+<!-- ══ GALLERY ══ -->
+<div id="gallery">
+
+  <div class="hero">
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-veil"></div>
+    <div class="hero-body">
+      <div class="eyebrow">Private Gallery</div>
+      <h1 id="h-title">Gallery</h1>
+      <div class="hero-desc" id="h-sub"></div>
+      <div class="hero-chips">
+        <div class="chip" id="h-count"></div>
+        <div class="chip" id="h-photog"></div>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <div class="scroll-lbl">View Photos</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="tb-l">
+      <span class="tb-brand" id="tb-title">Gallery</span>
+      <span class="tb-count" id="tb-count"></span>
+    </div>
+    <div class="tb-r">
+      <button class="ic-btn" title="2 columns" onclick="cols(2,this)">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="1" width="5" height="12" rx=".5"/><rect x="8" y="1" width="5" height="12" rx=".5"/></svg>
+      </button>
+      <button class="ic-btn on" title="3 columns" onclick="cols(3,this)">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x=".5" y="1" width="3.4" height="12" rx=".5"/><rect x="5.3" y="1" width="3.4" height="12" rx=".5"/><rect x="10.1" y="1" width="3.4" height="12" rx=".5"/></svg>
+      </button>
+      <button class="ic-btn" title="4 columns" onclick="cols(4,this)">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x=".5" y="1" width="2.4" height="12" rx=".5"/><rect x="4" y="1" width="2.4" height="12" rx=".5"/><rect x="7.5" y="1" width="2.4" height="12" rx=".5"/><rect x="11" y="1" width="2.4" height="12" rx=".5"/></svg>
+      </button>
+      <a class="dl-btn" id="dl-all" href="#" target="_blank">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download All
+      </a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Loading your gallery…</p>
+    </div>
+    <div id="error">
+      <h3>Couldn't load photos</h3>
+      <p id="err-msg">Make sure your folder is shared as "Anyone with the link can view" and try again.</p>
+      <button class="retry-btn" onclick="goSetup()">← Edit Settings</button>
+    </div>
+    <div class="masonry" id="grid"></div>
+  </div>
+
+  <footer id="gal-foot">Photo Gallery</footer>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lb">
+  <button class="lb-x" onclick="closeLb()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <button class="lb-arr lb-prev" onclick="lbGo(-1)">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div id="lb-wrap"><img id="lb-img" src="" alt=""></div>
+  <button class="lb-arr lb-next" onclick="lbGo(1)">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div class="lb-bar">
+    <span class="lb-num" id="lb-num">1 / 1</span>
+    <div class="lb-sep"></div>
+    <a class="lb-act" id="lb-dl" href="#" target="_blank">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download
+    </a>
+    <div class="lb-sep"></div>
+    <button class="lb-act" onclick="lbFav()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" id="lb-heart"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      Favourite
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<button class="fab" id="fab" onclick="goSetup()" title="Edit settings">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+</button>
+
+<script>
+/* ── STATE ── */
+let CFG = {};
+let PHOTOS = [];
+let lbIdx  = 0;
+let liked  = new Set(JSON.parse(localStorage.getItem('gal-liked') || '[]'));
+
+/* ── URL HELPERS ── */
+const thumbUrl = id => `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+const viewUrl  = id => `https://lh3.googleusercontent.com/d/${id}`;
+const dlUrl    = id => `https://drive.google.com/uc?export=download&id=${id}`;
+
+/* ── EXTRACT FOLDER ID ── */
+function extractFolderId(url) {
+  const m = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+/* ── LAUNCH ── */
+function launch() {
+  const folderUrl = document.getElementById('s-folder').value.trim();
+  const title     = document.getElementById('s-title').value.trim() || 'Gallery';
+  const sub       = document.getElementById('s-sub').value.trim();
+  const photog    = document.getElementById('s-photog').value.trim();
+  const pass      = document.getElementById('s-pass').value.trim();
+
+  if (!folderUrl) { alert('Please paste a Google Drive folder link.'); return; }
+
+  const fid = extractFolderId(folderUrl);
+  if (!fid) { alert('Could not find a folder ID in that link. Make sure it looks like:\ndrive.google.com/drive/folders/FOLDER_ID'); return; }
+
+  CFG = { fid, folderUrl, title, sub, photog, pass };
+
+  if (pass) {
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('pw-screen').classList.add('on');
+  } else {
+    openGallery();
+  }
+}
+
+function checkPw() {
+  if (document.getElementById('pw-in').value === CFG.pass) {
+    document.getElementById('pw-screen').classList.remove('on');
+    openGallery();
+  } else {
+    document.getElementById('pw-err').textContent = 'Incorrect password.';
+    document.getElementById('pw-in').value = '';
+  }
+}
+
+function goSetup() {
+  document.getElementById('gallery').style.display = 'none';
+  document.getElementById('setup').style.display   = 'flex';
+  document.getElementById('fab').classList.remove('on');
+}
+
+/* ── OPEN GALLERY ── */
+function openGallery() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('pw-screen').classList.remove('on');
+  document.getElementById('gallery').style.display = 'block';
+  document.getElementById('fab').classList.add('on');
+
+  document.getElementById('h-title').textContent  = CFG.title;
+  document.getElementById('h-sub').textContent    = CFG.sub;
+  document.getElementById('tb-title').textContent = CFG.title;
+  document.getElementById('dl-all').href          = CFG.folderUrl;
+
+  if (CFG.photog) {
+    document.getElementById('h-photog').innerHTML  = `By <span>${CFG.photog}</span>`;
+    document.getElementById('gal-foot').textContent = `Photography by ${CFG.photog}`;
+  }
+
+  fetchPhotos();
+}
+
+/* ── FETCH PHOTOS via allorigins proxy ── */
+async function fetchPhotos() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('error').style.display   = 'none';
+  document.getElementById('grid').innerHTML         = '';
+
+  const driveUrl = `https://drive.google.com/drive/folders/${CFG.fid}`;
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(driveUrl)}`;
+
+  try {
+    const res  = await fetch(proxyUrl);
+    const data = await res.json();
+    const html = data.contents;
+
+    if (!html) throw new Error('Empty response from proxy');
+
+    /* Google Drive embeds file IDs in JSON blobs inside the page HTML.
+       Pattern: ["FILE_ID","filename","application/..."] or similar.
+       We look for strings that look like Drive file IDs (28–33 chars, alphanumeric+_-). */
+    const idPattern = /["']([a-zA-Z0-9_-]{28,})['"]/g;
+    const seen   = new Set();
+    const ids    = [];
+    let m;
+
+    while ((m = idPattern.exec(html)) !== null) {
+      const id = m[1];
+      // Skip folder IDs (usually match the folder itself) and anything not image-like
+      if (!seen.has(id) && id !== CFG.fid) {
+        seen.add(id);
+        ids.push(id);
+      }
+    }
+
+    /* Filter to only actual image file IDs by probing thumbnails */
+    if (!ids.length) throw new Error('No files found. Make sure the folder is shared publicly.');
+
+    /* We can't truly test each ID without a request, so we render all and let
+       broken images hide themselves gracefully */
+    PHOTOS = ids.map(id => ({ id }));
+
+    document.getElementById('loading').style.display = 'none';
+    renderGrid();
+
+  } catch (e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display   = 'block';
+    document.getElementById('err-msg').textContent   =
+      e.message || 'Could not load the folder. Make sure it is shared publicly.';
+  }
+}
+
+/* ── RENDER ── */
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  let visible = 0;
+
+  PHOTOS.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'photo';
+
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.alt = `Photo ${i + 1}`;
+
+    // Try thumbnail URL; fallback to lh3 viewer
+    img.src = thumbUrl(p.id);
+    img.onload = () => {
+      img.classList.add('vis');
+      visible++;
+      if (visible === 1) {
+        // Set hero bg to first successfully loaded photo
+        const bg = document.getElementById('hero-bg');
+        bg.style.backgroundImage = `url('${img.src}')`;
+        setTimeout(() => bg.classList.add('ready'), 80);
+      }
+      updateCount(visible);
+    };
+    img.onerror = () => {
+      // Try lh3 URL
+      if (!img.dataset.tried) {
+        img.dataset.tried = '1';
+        img.src = viewUrl(p.id);
+      } else {
+        // Give up — hide this item
+        div.style.display = 'none';
+      }
+    };
+
+    const hov = document.createElement('div');
+    hov.className = 'photo-hov';
+    hov.innerHTML = `
+      <div class="p-btns">
+        <button class="p-btn ${liked.has(p.id)?'fav':''}" title="Favourite" onclick="event.stopPropagation();toggleFav(${i},this)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="${liked.has(p.id)?'white':'none'}" stroke="white" stroke-width="2.2">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          </svg>
+        </button>
+        <a class="p-btn" href="${dlUrl(p.id)}" target="_blank" title="Download" onclick="event.stopPropagation()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </a>
+      </div>`;
+
+    div.appendChild(img);
+    div.appendChild(hov);
+    div.addEventListener('click', () => openLb(i));
+    grid.appendChild(div);
+  });
+}
+
+function updateCount(n) {
+  document.getElementById('h-count').innerHTML    = `<span>${n}</span> Photos`;
+  document.getElementById('tb-count').textContent = `${n} photos`;
+}
+
+/* ── COLUMNS ── */
+function cols(n, btn) {
+  document.querySelectorAll('.ic-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const g = document.getElementById('grid');
+  g.className = 'masonry' + (n === 3 ? '' : ` c${n}`);
+}
+
+/* ── FAVOURITES ── */
+function toggleFav(i, btn) {
+  const id = PHOTOS[i].id;
+  const h  = btn.querySelector('svg');
+  if (liked.has(id)) {
+    liked.delete(id);
+    btn.classList.remove('fav');
+    h.setAttribute('fill', 'none');
+    toast('Removed from favourites');
+  } else {
+    liked.add(id);
+    btn.classList.add('fav');
+    h.setAttribute('fill', 'white');
+    toast('❤ Added to favourites');
+  }
+  localStorage.setItem('gal-liked', JSON.stringify([...liked]));
+}
+
+function lbFav() {
+  const id = PHOTOS[lbIdx].id;
+  const h  = document.getElementById('lb-heart');
+  if (liked.has(id)) {
+    liked.delete(id);
+    h.setAttribute('fill', 'none');
+    toast('Removed from favourites');
+  } else {
+    liked.add(id);
+    h.setAttribute('fill', 'currentColor');
+    toast('❤ Added to favourites');
+  }
+  localStorage.setItem('gal-liked', JSON.stringify([...liked]));
+}
+
+/* ── LIGHTBOX ── */
+function openLb(i) {
+  lbIdx = i;
+  refreshLb();
+  document.getElementById('lb').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLb() {
+  document.getElementById('lb').classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+function refreshLb() {
+  const p   = PHOTOS[lbIdx];
+  const img = document.getElementById('lb-img');
+  img.src   = viewUrl(p.id);
+  img.onerror = () => { img.src = thumbUrl(p.id); img.onerror = null; };
+  document.getElementById('lb-dl').href  = dlUrl(p.id);
+  document.getElementById('lb-num').textContent = `${lbIdx + 1} / ${PHOTOS.length}`;
+  document.getElementById('lb-heart').setAttribute('fill', liked.has(p.id) ? 'currentColor' : 'none');
+}
+
+function lbGo(d) {
+  lbIdx = (lbIdx + d + PHOTOS.length) % PHOTOS.length;
+  refreshLb();
+}
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lb').classList.contains('on')) return;
+  if (e.key === 'ArrowLeft')  lbGo(-1);
+  if (e.key === 'ArrowRight') lbGo(1);
+  if (e.key === 'Escape')     closeLb();
+});
+
+document.getElementById('lb').addEventListener('click', e => {
+  if (e.target === document.getElementById('lb')) closeLb();
+});
+
+/* ── TOAST ── */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 2200);
+}
+</script>
+</body>
+</html>
