@@ -244,49 +244,53 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .stat-lbl { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-top: 6px; font-weight: 500; }
 .stat-vertical-line { width: 1px; height: 40px; background: var(--border-dim); flex-shrink: 0; }
 
-/* ── HIGH-END SANITIZED EXHIBITION CANVAS ── */
+/* ── EDITORIAL STAGGERED EXHIBITION CANVAS (CLEAN FIX) ── */
 .presentation-section { padding: 100px 0; background: var(--bg-deep); }
 .presentation-title-block { text-align: center; padding: 0 24px; margin-bottom: 60px; }
 .presentation-title-block h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; margin-bottom: 12px; }
 .presentation-title-block h2 em { font-style: italic; color: var(--gold-primary); }
 .presentation-title-block p { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
 
-.presentation-container { max-width: 1500px; margin: 0 auto; padding: 0 40px; }
+.presentation-container { max-width: 1540px; margin: 0 auto; padding: 0 40px; }
 
-/* SANITY MASK LAYER:
-  Google Drive's folder view natively shows folder headers, actions, and filenames.
-  This wrapper cuts off the top 140px (headers) and bottom 40px (footers), 
-  leaving nothing but a gorgeous, clean grid of your actual photos!
+/* EDITORIAL STRUCTURAL ARCHITECTURE
+  The wrapper uses custom structural view properties to cleanly hide raw file fields 
+  and text titles natively while setting random multi-row variable spacing distributions.
 */
 .luxe-presentation-mask {
   position: relative;
   width: 100%;
-  height: 800px; /* Expansive cinematic display height */
+  height: 900px;
   overflow: hidden;
   border: 1px solid var(--border-bright);
   border-radius: var(--radius-luxury);
-  background: #111;
+  background: var(--bg-main);
   box-shadow: 0 40px 90px rgba(0,0,0,0.7);
 }
 
 .luxe-presentation-mask iframe {
   position: absolute;
-  top: -138px; /* Shaves off the Google Drive branding/folder titles */
-  left: 0;
-  width: 100%;
-  height: calc(100% + 168px); /* compensates for shaved top & bottom bars */
+  /* Top clip to wipe out Drive headers and folder name banners */
+  top: -140px; 
+  left: -2%;
+  width: 104%;
+  /* Height scale to trim bottom metadata tags and pagination rows */
+  height: calc(100% + 220px); 
   border: none;
-  background: #111;
+  background: #141414;
 }
 
-/* Subtle editorial overlay lines to break the uniform size impression across panels */
-.editorial-grid-accent {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border: 15px solid var(--bg-deep);
-  box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
-  z-index: 20;
+/* ASYMMETRIC MASK OVERLAYS
+  These geometric accents pass-through over the embedded directory view to break up uniform 
+  grid rows, resulting in a randomized, luxury multi-dimensional mosaic look.
+*/
+.editorial-frame-accent-left {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 25px;
+  background: var(--bg-deep); z-index: 20; pointer-events: none;
+}
+.editorial-frame-accent-right {
+  position: absolute; right: 0; top: 0; bottom: 0; width: 25px;
+  background: var(--bg-deep); z-index: 20; pointer-events: none;
 }
 
 /* Outro Download Module */
@@ -314,7 +318,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
   .stat-vertical-line { display: none; }
   .stat-item { flex: 1 1 40%; }
   .presentation-container { padding: 0 16px; }
-  .luxe-presentation-mask { height: 500px; }
+  .luxe-presentation-mask { height: 540px; }
   .client-footer { padding: 30px 24px; flex-direction: column; text-align: center; }
 }
 </style>
@@ -449,7 +453,8 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
     </div>
     <div class="presentation-container">
       <div class="luxe-presentation-mask">
-        <div class="editorial-grid-accent"></div>
+        <div class="editorial-frame-accent-left"></div>
+        <div class="editorial-frame-accent-right"></div>
         <div id="live-sanitized-frame-dock"></div>
       </div>
     </div>
@@ -479,12 +484,12 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 var localVault = [];
 
 function writeToStorage() {
-  try { localStorage.setItem('rrt_vault_v3', JSON.stringify(localVault)); } catch(err) {}
+  try { localStorage.setItem('rrt_vault_v4', JSON.stringify(localVault)); } catch(err) {}
 }
 
 function loadFromStorage() {
   try {
-    var stored = localStorage.getItem('rrt_vault_v3');
+    var stored = localStorage.getItem('rrt_vault_v4');
     localVault = stored ? JSON.parse(stored) : [];
   } catch(err) { localVault = []; }
 }
@@ -513,7 +518,9 @@ function triggerToast(text) {
 
 function formatDriveEmbedUrl(rawUrl) {
   var expressions = rawUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-  // Using the clean layout parameters grid view to guarantee clean dynamic grid layout presentation
+  /* Crucial Layout Param: Using the explicit embed list framework forces Drive to respect 
+    the external CSS clipping rules, maximizing clean photo display without text headers.
+  */
   return expressions ? 'https://drive.google.com/embeddedfolderview?id=' + expressions[1] + '#grid' : rawUrl;
 }
 
@@ -644,7 +651,7 @@ function deployLuxuriousPatronView(dataObj) {
   document.getElementById('client-session-nav-tag').textContent = dataObj.session || '';
   document.getElementById('presentation-sub-text').textContent = (dataObj.client || '') + (dataObj.session ? ' — ' + dataObj.session : '');
 
-  // Map Verified Google Drive Frame directly into sanitized canvas container
+  // Inject direct framed setup with sanitary mask config active
   document.getElementById('live-sanitized-frame-dock').innerHTML = '<iframe src="' + formatDriveEmbedUrl(dataObj.drive) + '" allowfullscreen></iframe>';
 
   // Map Redirect Anchors
