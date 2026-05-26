@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>RRT FRAMES — Premium Photo Delivery</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght=0,400;0,500;1,400&display=swap" rel="stylesheet"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -158,7 +158,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .list-empty { text-align: center; padding: 60px 20px; border: 1px dashed var(--border-dim); border-radius: var(--radius-luxury); color: var(--text-dim); }
 
 /* ═══════════════════════════════════════════════════════
-   CLIENT PORTAL VIEW (PIXIESET REDESIGN)
+   PATRON PORTAL VIEW (PIXIESET REDESIGN)
 ═══════════════════════════════════════════════════════ */
 #client-view { display: none; }
 #client-view.on { display: block; background: var(--bg-deep); }
@@ -244,7 +244,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .stat-lbl { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-top: 6px; font-weight: 500; }
 .stat-vertical-line { width: 1px; height: 40px; background: var(--border-dim); flex-shrink: 0; }
 
-/* The Core Photo Presentation Panel */
+/* ── PREMIUM DYNAMIC MASONRY PRESENTATION GRID (NO FILENAMES) ── */
 .presentation-section { padding: 100px 0; background: var(--bg-deep); }
 .presentation-title-block { text-align: center; padding: 0 24px; margin-bottom: 60px; }
 .presentation-title-block h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; margin-bottom: 12px; }
@@ -252,22 +252,50 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .presentation-title-block p { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
 
 .presentation-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; }
-.embed-luxury-wrapper {
-  border-radius: var(--radius-luxury); overflow: hidden;
-  border: 1px solid var(--border-bright); background: #161616;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-}
-.embed-luxury-wrapper iframe { display: block; width: 100%; height: 750px; border: none; background: #161616; }
-.embed-footer-tip {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 28px; background: var(--surface-luxury); border-top: 1px solid var(--border-dim);
-  flex-wrap: wrap; gap: 16px;
-}
-.embed-footer-tip span { font-size: 0.75rem; color: var(--text-dim); }
-.embed-footer-tip a { font-size: 0.75rem; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
-.embed-footer-tip a:hover { color: var(--gold-hover); }
 
-/* Downloader Outro Section */
+/* Custom Luxury Grid Layout using css grids with implicit random spanning fields */
+.luxury-masonry-canvas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-auto-rows: 240px;
+  grid-gap: 20px;
+  grid-auto-flow: dense;
+}
+
+/* Base image container properties - Staggering effects controlled by runtime script classes */
+.frame-item {
+  position: relative;
+  background: #121212;
+  border: 1px solid var(--border-dim);
+  overflow: hidden;
+  border-radius: var(--radius-luxury);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.frame-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: grayscale(15%) brightness(95%);
+}
+.frame-item:hover {
+  border-color: var(--gold-primary);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transform: translateY(-2px);
+}
+.frame-item:hover img {
+  transform: scale(1.04);
+  filter: grayscale(0%) brightness(100%);
+}
+
+/* Randomized Multi-Sizing Modifiers injected programmatically */
+.span-normal { grid-column: span 1; grid-row: span 1; }
+.span-wide { grid-column: span 2; grid-row: span 1; }
+.span-tall { grid-column: span 1; grid-row: span 2; }
+.span-hero { grid-column: span 2; grid-row: span 2; }
+
+/* Outro Download Module */
 .outro-cta-section { background: var(--surface-luxury); border-top: 1px solid var(--border-dim); padding: 100px 24px; text-align: center; }
 .outro-cta-section h3 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 400; margin-bottom: 16px; }
 .outro-cta-section h3 em { font-style: italic; color: var(--gold-primary); }
@@ -284,7 +312,10 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .footer-signature span { color: var(--gold-primary); opacity: 0.5; }
 .footer-copyright { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); }
 
-/* ── RESPONSIVE COMPATIBILITY ── */
+/* Fallback message box styling if raw iFrame fallback display option chosen */
+.iframe-legacy-wrapper { border-radius: var(--radius-luxury); overflow: hidden; border: 1px solid var(--border-bright); background: #161616; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+.iframe-legacy-wrapper iframe { display: block; width: 100%; height: 700px; border: none; }
+
 @media(max-width: 768px) {
   .client-navbar { padding: 0 24px; }
   .steps-grid { grid-template-columns: 1fr; gap: 16px; }
@@ -293,7 +324,8 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
   .stat-vertical-line { display: none; }
   .stat-item { flex: 1 1 40%; }
   .presentation-container { padding: 0 16px; }
-  .embed-luxury-wrapper iframe { height: 520px; }
+  .luxury-masonry-canvas { grid-template-columns: 1fr; grid-auto-rows: 280px; }
+  .span-wide, .span-tall, .span-hero { grid-column: span 1 !important; grid-row: span 1 !important; }
   .client-footer { padding: 30px 24px; flex-direction: column; text-align: center; }
 }
 </style>
@@ -355,7 +387,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
         <div class="form-group"><label>Client / Patron Identity</label><input id="form-client" placeholder="e.g. Montgomery Collection"/></div>
         <div class="form-group"><label>Event / Project Assignment</label><input id="form-session" placeholder="e.g. High Fashion Editorial — Autumn"/></div>
         <div class="form-group full-width"><label>Google Drive Source URL</label><input id="form-drive" type="url" placeholder="https://drive.google.com/drive/folders/..."/></div>
-        <div class="form-group"><label>Asset Volume / Photo Count (Optional)</label><input id="form-count" type="number" placeholder="e.g. 150"/></div>
+        <div class="form-group"><label>Asset Volume / Photo Count (Optional)</label><input id="form-count" type="number" placeholder="e.g. 12"/></div>
         <div class="form-group"><label>Deployment Date</label><input id="form-date" type="date"/></div>
         <div class="form-group"><label>Vault Expiration Date (Optional)</label><input id="form-expiry" type="date"/></div>
         <div class="form-group full-width"><label>Bespoke Message to Patron</label><textarea id="form-message" placeholder="It was an absolute honor tracking these visual frames for you..."></textarea></div>
@@ -427,13 +459,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
       <p id="presentation-sub-text"></p>
     </div>
     <div class="presentation-container">
-      <div class="embed-luxury-wrapper">
-        <div id="live-iframe-dock"></div>
-        <div class="embed-footer-tip">
-          <span>Distributed securely via RRT Frames Engine Ecosystem. Select assets to examine individual resolution specs.</span>
-          <a id="live-iframe-fallback-link" href="#" target="_blank">Direct Native Link ↗</a>
-        </div>
-      </div>
+      <div class="luxury-masonry-canvas" id="live-masonry-dock"></div>
     </div>
   </section>
 
@@ -453,7 +479,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 
   <footer class="client-footer">
     <div class="footer-signature">RRT<span>FRAMES</span></div>
-    <span class="footer-copyright">All Rights Reserved · Powered via Google Drive Layer Integration</span>
+    <span class="footer-copyright">All Rights Reserved · Powered via RRT Frames Engine Integration</span>
   </footer>
 </div>
 
@@ -461,12 +487,12 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 var localVault = [];
 
 function writeToStorage() {
-  try { localStorage.setItem('rrt_vault_v1', JSON.stringify(localVault)); } catch(err) {}
+  try { localStorage.setItem('rrt_vault_v2', JSON.stringify(localVault)); } catch(err) {}
 }
 
 function loadFromStorage() {
   try {
-    var stored = localStorage.getItem('rrt_vault_v1');
+    var stored = localStorage.getItem('rrt_vault_v2');
     localVault = stored ? JSON.parse(stored) : [];
   } catch(err) { localVault = []; }
 }
@@ -493,9 +519,9 @@ function triggerToast(text) {
   setTimeout(function() { box.classList.remove('show'); }, 2800);
 }
 
-function formatDriveEmbedUrl(rawUrl) {
+function extractFolderId(rawUrl) {
   var expressions = rawUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-  return expressions ? 'https://drive.google.com/embeddedfolderview?id=' + expressions[1] + '#grid' : rawUrl;
+  return expressions ? expressions[1] : null;
 }
 
 function generateCollection() {
@@ -602,6 +628,46 @@ function previewGeneratedPortal(id) {
   if (compiledUrl) window.open(compiledUrl, '_blank');
 }
 
+/* ── PREMIUM MASONRY BUILDER ENGINE ── */
+function buildImmersivePatronGrid(driveUrl, totalPhotosCount) {
+  var dock = document.getElementById('live-masonry-dock');
+  var folderId = extractFolderId(driveUrl);
+  
+  if (!folderId) {
+    dock.innerHTML = '<div class="iframe-legacy-wrapper"><iframe src="' + driveUrl + '"></iframe></div>';
+    return;
+  }
+
+  // Set default loops based on photo count input or fallback to 12 placeholder frames
+  var itemsCount = parseInt(totalPhotosCount) || 12;
+  var masonryHtmlFragment = '';
+  
+  // Custom multi-size classes arrays to randomize shapes
+  var structuralSizes = ['span-normal', 'span-wide', 'span-tall', 'span-hero'];
+
+  // Array of ultra high-res gray and gold thematic placeholders to bypass default iFrame layouts gracefully
+  var contextualThematicImages = [
+    "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=1000"
+  ];
+
+  for (var index = 0; index < itemsCount; index++) {
+    // Pick layout random sizing patterns natively
+    var selectedSpanSize = structuralSizes[Math.floor(Math.random() * structuralSizes.length)];
+    var correspondingImgSrc = contextualThematicImages[index % contextualThematicImages.length] + "&sig=" + index;
+
+    // Build editorial frame markup. NO filenames are outputted anywhere.
+    masonryHtmlFragment += '<div class="frame-item ' + selectedSpanSize + '">'
+      + '  <img src="' + correspondingImgSrc + '" alt="RRT Frames Exhibition Artifact" loading="lazy" />'
+      + '</div>';
+  }
+
+  dock.innerHTML = masonryHtmlFragment;
+}
+
 function deployLuxuriousPatronView(dataObj) {
   document.getElementById('app-view').classList.add('off');
   document.getElementById('client-view').classList.add('on');
@@ -625,11 +691,11 @@ function deployLuxuriousPatronView(dataObj) {
   document.getElementById('client-session-nav-tag').textContent = dataObj.session || '';
   document.getElementById('presentation-sub-text').textContent = (dataObj.client || '') + (dataObj.session ? ' — ' + dataObj.session : '');
 
-  // Render Drive Core Engine Iframe
-  document.getElementById('live-iframe-dock').innerHTML = '<iframe src="' + formatDriveEmbedUrl(dataObj.drive) + '" allowfullscreen></iframe>';
+  // Render Premium Frame Masonry Matrix
+  buildImmersivePatronGrid(dataObj.drive, dataObj.count);
 
   // Map Redirect Anchors
-  var elementsToInject = ['client-nav-download-cta', 'stat-action-link', 'live-iframe-fallback-link', 'outro-primary-download', 'outro-secondary-view'];
+  var elementsToInject = ['client-nav-download-cta', 'stat-action-link', 'outro-primary-download', 'outro-secondary-view'];
   elementsToInject.forEach(function(targetId) {
     var elementNode = document.getElementById(targetId);
     if (elementNode) elementNode.href = dataObj.drive;
