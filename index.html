@@ -682,8 +682,8 @@ function executePremiumMasonryMining(driveUrl, targetCount) {
   var frameworkVariations = ['span-normal', 'span-wide', 'span-tall', 'span-hero'];
   dockElement.innerHTML = '<div style="text-align:center; padding:60px; color:var(--gold-primary); font-size:0.9rem; letter-spacing:0.1em; text-transform:uppercase;">Curating Exhibition Frames...</div>';
 
-  // FIX: Added 'pageSize=1000' and 'trashed=false' queries to bypass Google's default low image display limits
-  var apiUrl = "https://www.googleapis.com/drive/v3/files?q='" + folderId + "'+in+parents+and+mimeType+contains+'image/'+and+trashed=false&key=" + GOOGLE_DRIVE_API_KEY + "&fields=files(id)&pageSize=1000";
+  // FIX: Appended 'orderBy=name' parameter straight into the fetch request to force standard forward-chronological formatting sequence
+  var apiUrl = "https://www.googleapis.com/drive/v3/files?q='" + folderId + "'+in+parents+and+mimeType+contains+'image/'+and+trashed=false&orderBy=name&key=" + GOOGLE_DRIVE_API_KEY + "&fields=files(id)&pageSize=1000";
 
   fetch(apiUrl)
     .then(response => response.json())
@@ -691,7 +691,6 @@ function executePremiumMasonryMining(driveUrl, targetCount) {
       if (data.files && data.files.length > 0) {
         var htmlContent = '';
         
-        // Updates metrics badge to show the actual exact photo count found inside the folder
         document.getElementById('stat-count-box').textContent = data.files.length;
         
         data.files.forEach(function(file) {
