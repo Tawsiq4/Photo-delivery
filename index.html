@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>RRT FRAMES — Premium Photo Delivery</title>
+<title>RRT FRAMES — Premium Photo Presentation</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght=0,400;0,500;1,400&display=swap" rel="stylesheet"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -244,61 +244,57 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .stat-lbl { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-top: 6px; font-weight: 500; }
 .stat-vertical-line { width: 1px; height: 40px; background: var(--border-dim); flex-shrink: 0; }
 
-/* ── PREMIUM DYNAMIC MASONRY PRESENTATION GRID (NO FILENAMES) ── */
+/* ── HIGH-END SANITIZED EXHIBITION CANVAS ── */
 .presentation-section { padding: 100px 0; background: var(--bg-deep); }
 .presentation-title-block { text-align: center; padding: 0 24px; margin-bottom: 60px; }
 .presentation-title-block h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; margin-bottom: 12px; }
 .presentation-title-block h2 em { font-style: italic; color: var(--gold-primary); }
 .presentation-title-block p { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
 
-.presentation-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; }
+.presentation-container { max-width: 1500px; margin: 0 auto; padding: 0 40px; }
 
-/* Masonry System */
-.luxury-masonry-canvas {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  grid-auto-rows: 240px;
-  grid-gap: 20px;
-  grid-auto-flow: dense;
-}
-
-/* Luxury Framework Base Block */
-.frame-item {
+/* SANITY MASK LAYER:
+  Google Drive's folder view natively shows folder headers, actions, and filenames.
+  This wrapper cuts off the top 140px (headers) and bottom 40px (footers), 
+  leaving nothing but a gorgeous, clean grid of your actual photos!
+*/
+.luxe-presentation-mask {
   position: relative;
-  background: #121212;
-  border: 1px solid var(--border-dim);
-  overflow: hidden;
-  border-radius: var(--radius-luxury);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.frame-item img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.frame-item:hover {
-  border-color: var(--gold-primary);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  transform: translateY(-2px);
-}
-.frame-item:hover img {
-  transform: scale(1.04);
+  height: 800px; /* Expansive cinematic display height */
+  overflow: hidden;
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-luxury);
+  background: #111;
+  box-shadow: 0 40px 90px rgba(0,0,0,0.7);
 }
 
-/* Multi-Sizing Modifiers injected dynamically */
-.span-normal { grid-column: span 1; grid-row: span 1; }
-.span-wide { grid-column: span 2; grid-row: span 1; }
-.span-tall { grid-column: span 1; grid-row: span 2; }
-.span-hero { grid-column: span 2; grid-row: span 2; }
+.luxe-presentation-mask iframe {
+  position: absolute;
+  top: -138px; /* Shaves off the Google Drive branding/folder titles */
+  left: 0;
+  width: 100%;
+  height: calc(100% + 168px); /* compensates for shaved top & bottom bars */
+  border: none;
+  background: #111;
+}
+
+/* Subtle editorial overlay lines to break the uniform size impression across panels */
+.editorial-grid-accent {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 15px solid var(--bg-deep);
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+  z-index: 20;
+}
 
 /* Outro Download Module */
 .outro-cta-section { background: var(--surface-luxury); border-top: 1px solid var(--border-dim); padding: 100px 24px; text-align: center; }
 .outro-cta-section h3 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 400; margin-bottom: 16px; }
 .outro-cta-section h3 em { font-style: italic; color: var(--gold-primary); }
 .outro-cta-section p { font-size: 0.95rem; color: var(--text-muted); max-width: 480px; margin: 0 auto 40px; line-height: 1.8; font-weight: 300; }
-.outro-btn-group { display: flex; gap: 166px; justify-content: center; flex-wrap: wrap; }
+.outro-btn-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
 /* Luxury Portal Footer */
 .client-footer {
@@ -318,8 +314,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
   .stat-vertical-line { display: none; }
   .stat-item { flex: 1 1 40%; }
   .presentation-container { padding: 0 16px; }
-  .luxury-masonry-canvas { grid-template-columns: 1fr; grid-auto-rows: 280px; }
-  .span-wide, .span-tall, .span-hero { grid-column: span 1 !important; grid-row: span 1 !important; }
+  .luxe-presentation-mask { height: 500px; }
   .client-footer { padding: 30px 24px; flex-direction: column; text-align: center; }
 }
 </style>
@@ -381,7 +376,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
         <div class="form-group"><label>Client / Patron Identity</label><input id="form-client" placeholder="e.g. Montgomery Collection"/></div>
         <div class="form-group"><label>Event / Project Assignment</label><input id="form-session" placeholder="e.g. High Fashion Editorial — Autumn"/></div>
         <div class="form-group full-width"><label>Google Drive Source URL</label><input id="form-drive" type="url" placeholder="https://drive.google.com/drive/folders/..."/></div>
-        <div class="form-group"><label>Asset Volume / Photo Count (Required)</label><input id="form-count" type="number" placeholder="e.g. 8"/></div>
+        <div class="form-group"><label>Asset Volume / Photo Count (Optional)</label><input id="form-count" type="number" placeholder="e.g. 142"/></div>
         <div class="form-group"><label>Deployment Date</label><input id="form-date" type="date"/></div>
         <div class="form-group"><label>Vault Expiration Date (Optional)</label><input id="form-expiry" type="date"/></div>
         <div class="form-group full-width"><label>Bespoke Message to Patron</label><textarea id="form-message" placeholder="It was an absolute honor tracking these visual frames for you..."></textarea></div>
@@ -453,7 +448,10 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
       <p id="presentation-sub-text"></p>
     </div>
     <div class="presentation-container">
-      <div class="luxury-masonry-canvas" id="live-masonry-dock"></div>
+      <div class="luxe-presentation-mask">
+        <div class="editorial-grid-accent"></div>
+        <div id="live-sanitized-frame-dock"></div>
+      </div>
     </div>
   </section>
 
@@ -467,6 +465,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
     <p>Archive the entire composition portfolio straight onto your native systems at maximum resolution density.</p>
     <div class="outro-btn-group">
       <a id="outro-primary-download" href="#" target="_blank" class="btn btn-gold btn-lg">↗ Acquire Full Collection</a>
+      <a id="outro-secondary-view" href="#" target="_blank" class="btn btn-ghost btn-lg">Review Repository</a>
     </div>
   </div>
 
@@ -512,11 +511,10 @@ function triggerToast(text) {
   setTimeout(function() { box.classList.remove('show'); }, 2800);
 }
 
-function extractFolderId(rawUrl) {
+function formatDriveEmbedUrl(rawUrl) {
   var expressions = rawUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-  if(expressions) return expressions[1];
-  var queryMatch = rawUrl.match(/id=([a-zA-Z0-9_-]+)/);
-  return queryMatch ? queryMatch[1] : null;
+  // Using the clean layout parameters grid view to guarantee clean dynamic grid layout presentation
+  return expressions ? 'https://drive.google.com/embeddedfolderview?id=' + expressions[1] + '#grid' : rawUrl;
 }
 
 function generateCollection() {
@@ -530,7 +528,7 @@ function generateCollection() {
 
   if (!client) { triggerToast('Patron name declaration required.'); return; }
   if (!drive) { triggerToast('Google Drive target link required.'); return; }
-  if (!count) { triggerToast('Please enter the number of photos to display.'); return; }
+  if (drive.indexOf('drive.google.com') === -1) { triggerToast('Please specify a verified Google Drive URL.'); return; }
 
   var uniquelyIdentified = 'rrt_' + Date.now();
   localVault.unshift({
@@ -623,88 +621,6 @@ function previewGeneratedPortal(id) {
   if (compiledUrl) window.open(compiledUrl, '_blank');
 }
 
-/* ── TRUE GOOGLE DRIVE STREAM PARSER ── */
-function fetchAndBuildDriveMasonry(driveUrl, totalCount) {
-  var dock = document.getElementById('live-masonry-dock');
-  var folderId = extractFolderId(driveUrl);
-
-  if (!folderId) {
-    dock.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:40px;">Invalid Google Drive Link Format.</div>';
-    return;
-  }
-
-  // To secure structural randomization layout sizing properties cleanly
-  var sizePatterns = ['span-normal', 'span-wide', 'span-tall', 'span-hero'];
-  
-  // We utilize Google's files metadata proxy endpoint directly via JavaScript
-  var totalToLoad = parseInt(totalCount) || 12;
-  
-  // Using Google's publicly accessible folder layout index mapping endpoint bypasses auth restrictions
-  var exportFeedUrl = 'https://docs.google.com/feeds/d/' + folderId + '/folders/root?alt=json';
-
-  fetch(exportFeedUrl)
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      var entries = data.feed.entry || [];
-      var imageLinks = [];
-
-      // Loop over folder entries and parse explicit file structural links
-      entries.forEach(function(entry) {
-        var links = entry.link || [];
-        var alternateLink = '';
-        links.forEach(function(l) {
-          if (l.rel === 'alternate') alternateLink = l.href;
-        });
-
-        // Pull unique file ID
-        var fileIdMatch = alternateLink.match(/id=([a-zA-Z0-9_-]+)/) || alternateLink.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-        if (fileIdMatch) {
-          // Translate to raw structural stream asset image layer URL
-          imageLinks.push('https://docs.google.com/uc?export=view&id=' + fileIdMatch[1]);
-        }
-      });
-
-      // If feed returns empty due to folder restrictions, fallback gracefully to structural sequence mapping
-      if (imageLinks.length === 0) {
-        buildSequentialFallbackStream(folderId, totalToLoad, sizePatterns, dock);
-        return;
-      }
-
-      // Generate the clean HTML elements with random sizes and absolutely no file names
-      var masonryHtml = '';
-      var itemsToRender = Math.min(imageLinks.length, totalToLoad);
-
-      for (var i = 0; i < itemsToRender; i++) {
-        var randomClass = sizePatterns[Math.floor(Math.random() * sizePatterns.length)];
-        masonryHtml += '<div class="frame-item ' + randomClass + '">'
-          + '  <img src="' + imageLinks[i] + '" alt="RRT FRAMES Masterpiece" loading="lazy" onerror="this.parentElement.style.display=\'none\';" />'
-          + '</div>';
-      }
-      dock.innerHTML = masonryHtml;
-    })
-    .catch(function() {
-      // Secondary absolute foolproof fallback option
-      buildSequentialFallbackStream(folderId, totalToLoad, sizePatterns, dock);
-    });
-}
-
-function buildSequentialFallbackStream(folderId, count, sizePatterns, dock) {
-  // Direct file execution sequence engine mapping
-  var masonryHtml = '';
-  for (var i = 0; i < count; i++) {
-    var randomClass = sizePatterns[Math.floor(Math.random() * sizePatterns.length)];
-    // Fallback references standard user content views cleanly
-    var streamUrl = 'https://docs.google.com/uc?export=view&id=' + folderId + '&index=' + i; 
-    
-    // Instead of raw index breaks we generate a gorgeous container wrapper 
-    masonryHtml += '<div class="frame-item ' + randomClass + '">'
-      + '  <img src="https://picsum.photos/800/800?sig=' + i + '" alt="RRT FRAMES Masterpiece" loading="lazy" />'
-      + '</div>';
-  }
-  // Informative tip inside development mode logic layers
-  dock.innerHTML = masonryHtml;
-}
-
 function deployLuxuriousPatronView(dataObj) {
   document.getElementById('app-view').classList.add('off');
   document.getElementById('client-view').classList.add('on');
@@ -720,6 +636,7 @@ function deployLuxuriousPatronView(dataObj) {
   if (dataObj.expiry) metadataCollection.push('Archived until ' + prettifyDate(dataObj.expiry));
   document.getElementById('client-meta-strip').innerHTML = metadataCollection.map(function(m) { return '<span>' + m + '</span>'; }).join('');
 
+  // Setup Statistics Data Matrix
   document.getElementById('stat-count-box').textContent = dataObj.count || '∞';
   document.getElementById('stat-year-box').textContent = dataObj.date ? pullYear(dataObj.date) : '—';
   document.getElementById('stat-project-box').textContent = dataObj.session ? dataObj.session.split(/[—\-]/)[0].trim() : 'Curated';
@@ -727,10 +644,11 @@ function deployLuxuriousPatronView(dataObj) {
   document.getElementById('client-session-nav-tag').textContent = dataObj.session || '';
   document.getElementById('presentation-sub-text').textContent = (dataObj.client || '') + (dataObj.session ? ' — ' + dataObj.session : '');
 
-  // Fire Direct Stream Engine Execution
-  fetchAndBuildDriveMasonry(dataObj.drive, dataObj.count);
+  // Map Verified Google Drive Frame directly into sanitized canvas container
+  document.getElementById('live-sanitized-frame-dock').innerHTML = '<iframe src="' + formatDriveEmbedUrl(dataObj.drive) + '" allowfullscreen></iframe>';
 
-  var elementsToInject = ['client-nav-download-cta', 'stat-action-link', 'outro-primary-download'];
+  // Map Redirect Anchors
+  var elementsToInject = ['client-nav-download-cta', 'stat-action-link', 'outro-primary-download', 'outro-secondary-view'];
   elementsToInject.forEach(function(targetId) {
     var elementNode = document.getElementById(targetId);
     if (elementNode) elementNode.href = dataObj.drive;
