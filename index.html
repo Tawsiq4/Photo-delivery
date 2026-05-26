@@ -96,6 +96,32 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .copy-btn:hover { background: var(--gold-hover); }
 .copy-btn.ok { background: #66bb6a; color: #fff; }
 
+/* ── LUXURY LIGHTBOX MODAL PREVIEW SYSTEM ── */
+.lightbox-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(8, 8, 8, 0.95);
+  backdrop-filter: blur(15px); z-index: 2000; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.35s ease;
+}
+.lightbox-overlay.active { display: flex; opacity: 1; }
+.lightbox-container {
+  position: relative; max-width: 90vw; max-height: 85vh;
+  transform: scale(0.95); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lightbox-overlay.active .lightbox-container { transform: scale(1); }
+.lightbox-img {
+  max-width: 100%; max-height: 85vh; object-fit: contain;
+  border-radius: var(--radius-luxury); box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+  border: 1px solid var(--border-dim);
+}
+.lightbox-close {
+  position: absolute; top: -45px; right: 0;
+  color: var(--text-muted); font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
+  background: transparent; border: none; transition: color 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.lightbox-close:hover { color: var(--gold-primary); }
+
 /* ═══════════════════════════════
    PHOTOGRAPHER PORTAL (ADMIN)
 ═══════════════════════════════ */
@@ -270,6 +296,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
   overflow: hidden;
   border-radius: var(--radius-luxury);
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: zoom-in;
 }
 .frame-item img {
   width: 100%;
@@ -312,6 +339,13 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 <body>
 
 <div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-message"></span></div>
+
+<div class="lightbox-overlay" id="lightbox-overlay" onclick="closeLightbox(event)">
+  <div class="lightbox-container">
+    <button class="lightbox-close" onclick="closeLightbox(event)">✕ Close</button>
+    <img src="" class="lightbox-img" id="lightbox-target-img" alt="Exhibition Artifact Preview" />
+  </div>
+</div>
 
 <div class="overlay" id="overlay">
   <div class="modal">
@@ -480,7 +514,7 @@ function loadFromStorage() {
 }
 
 function escapeString(str) {
-  return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return (str || '').replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
 }
 
 function prettifyDate(d) {
@@ -610,6 +644,44 @@ function previewGeneratedPortal(id) {
   if (compiledUrl) window.open(compiledUrl, '_blank');
 }
 
+/* ── INTERACTIVE LIGHTBOX ROUTINES ── */
+function launchLightbox(imageSrc) {
+  var overlay = document.getElementById('lightbox-overlay');
+  var targetImg = document.getElementById('lightbox-target-img');
+  
+  // Set the clean high-resolution source asset
+  targetImg.src = imageSrc;
+  
+  // Smooth overlay initiation
+  overlay.style.display = 'flex';
+  setTimeout(function() {
+    overlay.classList.add('active');
+  }, 10);
+}
+
+function closeLightbox(event) {
+  // Prevent inner container clicks from prematurely dismissing view matrix
+  if (event.target.id === 'lightbox-target-img') return;
+  
+  var overlay = document.getElementById('lightbox-overlay');
+  overlay.classList.remove('active');
+  
+  setTimeout(function() {
+    overlay.style.display = 'none';
+    document.getElementById('lightbox-target-img').src = '';
+  }, 350);
+}
+
+// Map hardware key closures for enhanced professional look
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var overlay = document.getElementById('lightbox-overlay');
+    if (overlay.classList.contains('active')) {
+      closeLightbox(e);
+    }
+  }
+});
+
 /* ── HIGH-END MASONRY AUTOMATED LIVE API FETCH ENGINE ── */
 function executePremiumMasonryMining(driveUrl, targetCount) {
   var dockElement = document.getElementById('live-masonry-dock');
@@ -631,14 +703,12 @@ function executePremiumMasonryMining(driveUrl, targetCount) {
       if (data.files && data.files.length > 0) {
         var htmlContent = '';
         data.files.forEach(function(file) {
-          // Choose an editorial display box proportion setting randomly
           var randomLayoutSize = frameworkVariations[Math.floor(Math.random() * frameworkVariations.length)];
-          
-          // Using the specialized high-resolution Google usercontent proxy to completely drop out title blocks
           var directImgLink = "https://lh3.googleusercontent.com/d/" + file.id + "=s1600";
           
-          htmlContent += '<div class="frame-item ' + randomLayoutSize + '">'
-            + '  <img src="' + directImgLink + '" alt="RRT FRAMES Masterpiece Portfolio" loading="lazy" />'
+          // Attached standard native click trigger loops into layout rendering block
+          htmlContent += '<div class="frame-item ' + randomLayoutSize + '" onclick="launchLightbox(\'' + directImgLink + '\')">'
+            + '  <img src="' + directImgLink + '" alt="RRT FRAMES Curated Portfolio Exhibit" loading="lazy" />'
             + '</div>';
         });
         dockElement.innerHTML = htmlContent;
