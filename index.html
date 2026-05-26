@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RRT FRAMES — Premium Photo Delivery</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep: #0f0f0f;
+  --bg-main: #141414;
+  --surface-luxury: #1a1a1a;
+  --surface-card: #222222;
+  --border-dim: #2a2a2a;
+  --border-bright: #3a3a3a;
+  --gold-primary: #d4af37;
+  --gold-hover: #e6c655;
+  --gold-dark: #aa8416;
+  --gold-glow: rgba(212, 175, 55, 0.15);
+  --text-pure: #f5f5f5;
+  --text-muted: #a0a0a0;
+  --text-dim: #666666;
+  --radius-luxury: 4px;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-pure);
+  min-height: 100vh;
+  overflow-x: hidden;
+  letter-spacing: 0.03em;
+}
+
+a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
+
+/* ── LUXURY BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 28px;
+  border-radius: var(--radius-luxury);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  border: none;
+  text-transform: uppercase;
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.btn-gold { background: var(--gold-primary); color: #000; font-weight: 600; }
+.btn-gold:hover { background: var(--gold-hover); transform: translateY(-2px); box-shadow: 0 8px 24px var(--gold-glow); }
+.btn-outline { background: transparent; color: var(--text-pure); border: 1px solid var(--border-bright); }
+.btn-outline:hover { background: rgba(255,255,255,0.03); border-color: var(--gold-primary); }
+.btn-ghost { background: rgba(255,255,255,0.02); color: var(--text-muted); border: 1px solid var(--border-dim); }
+.btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text-pure); }
+.btn-danger { background: rgba(211, 47, 47, 0.06); color: #ef5350; border: 1px solid rgba(211, 47, 47, 0.2); }
+.btn-danger:hover { background: rgba(211, 47, 47, 0.15); }
+.btn-sm { padding: 8px 16px; font-size: 0.68rem; letter-spacing: 0.1em; }
+.btn-lg { padding: 16px 40px; font-size: 0.8rem; letter-spacing: 0.2em; }
+
+/* ── UTILITY TOAST ── */
+.toast {
+  position: fixed; bottom: 32px; right: 32px;
+  background: var(--surface-luxury); border: 1px solid var(--gold-primary);
+  border-radius: var(--radius-luxury); padding: 14px 24px; font-size: 0.8rem;
+  display: flex; align-items: center; gap: 12px;
+  transform: translateY(20px); opacity: 0; transition: all 0.3s ease;
+  z-index: 9999; pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold-primary); box-shadow: 0 0 8px var(--gold-primary); }
+
+/* ── MODAL WINDOW ── */
+.overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px); z-index: 900; align-items: center; justify-content: center;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface-luxury); border: 1px solid var(--border-bright);
+  border-radius: var(--radius-luxury); padding: 40px; width: 100%; max-width: 500px;
+  margin: 20px; animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes modalPop { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; margin-bottom: 8px; color: var(--gold-primary); }
+.modal .sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+.link-row { display: flex; gap: 10px; align-items: center; background: var(--bg-deep); border: 1px solid var(--border-dim); border-radius: var(--radius-luxury); padding: 10px 14px; margin-bottom: 20px; }
+.link-row input { background: transparent; border: none; padding: 0; font-size: 0.8rem; color: var(--text-muted); flex: 1; min-width: 0; outline: none; font-family: 'Montserrat', sans-serif; }
+.copy-btn { flex-shrink: 0; font-size: 0.7rem; padding: 6px 14px; background: var(--gold-primary); color: #000; border: none; border-radius: 2px; cursor: pointer; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; transition: background 0.2s; }
+.copy-btn:hover { background: var(--gold-hover); }
+.copy-btn.ok { background: #66bb6a; color: #fff; }
+
+/* ═══════════════════════════════
+   PHOTOGRAPHER PORTAL (ADMIN)
+═══════════════════════════════ */
+#app-view.off { display: none; }
+.ph-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 60px; border-bottom: 1px solid var(--border-dim);
+  position: sticky; top: 0; background: rgba(20,20,20,0.95); backdrop-filter: blur(20px); z-index: 100;
+}
+.brand-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; }
+.brand-logo span { color: var(--gold-primary); font-style: italic; }
+.portal-badge { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); border-left: 1px solid var(--border-bright); padding-left: 16px; }
+
+.ph-main { max-width: 960px; margin: 0 auto; padding: 60px 24px 120px; }
+.ph-hero { text-align: center; margin-bottom: 60px; }
+.luxury-eyebrow { display: inline-flex; align-items: center; gap: 16px; font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-primary); margin-bottom: 24px; }
+.luxury-eyebrow::before, .luxury-eyebrow::after { content: ''; width: 40px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-primary)); }
+.luxury-eyebrow::after { background: linear-gradient(90deg, var(--gold-primary), transparent); }
+.ph-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 400; line-height: 1.2; margin-bottom: 16px; }
+.ph-hero h1 em { font-style: italic; color: var(--gold-primary); }
+.ph-hero p { font-size: 0.9rem; color: var(--text-muted); max-width: 460px; margin: 0 auto; line-height: 1.8; font-weight: 300; }
+
+.section-divider { display: flex; align-items: center; gap: 20px; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-dim); margin: 40px 0 24px; }
+.section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-dim); }
+
+/* Steps grid */
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 48px; }
+.step-card { background: var(--surface-luxury); border: 1px solid var(--border-dim); padding: 24px; border-radius: var(--radius-luxury); }
+.step-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold-primary); margin-bottom: 12px; }
+.step-card h3 { font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; color: var(--text-pure); }
+.step-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; font-weight: 300; }
+
+/* Creator Form */
+.form-card { background: var(--surface-luxury); border: 1px solid var(--border-bright); border-radius: var(--radius-luxury); padding: 36px; margin-bottom: 48px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); font-weight: 500; }
+.form-group input, .form-group textarea { background: var(--bg-deep); border: 1px solid var(--border-dim); border-radius: var(--radius-luxury); padding: 12px 16px; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; color: var(--text-pure); outline: none; transition: border-color 0.2s; width: 100%; }
+.form-group input:focus, .form-group textarea:focus { border-color: var(--gold-primary); }
+.form-group input::placeholder, .form-group textarea::placeholder { color: #444; }
+.form-group textarea { resize: vertical; min-height: 90px; }
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid var(--border-dim); padding-top: 24px; }
+
+/* Dashboard Gallery List */
+.gallery-stack { display: flex; flex-direction: column; gap: 12px; }
+.gallery-row { display: flex; align-items: center; justify-content: space-between; background: var(--surface-luxury); border: 1px solid var(--border-dim); border-radius: var(--radius-luxury); padding: 18px 24px; transition: all 0.2s; animation: rowFade 0.3s ease both; }
+.gallery-row:hover { border-color: var(--border-bright); background: #1e1e1e; }
+@keyframes rowFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.row-main-info { display: flex; align-items: center; gap: 20px; flex: 1; min-width: 0; }
+.row-icon { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--gold-glow); background: rgba(212,175,55,0.03); display: flex; align-items: center; justify-content: center; color: var(--gold-primary); font-size: 1rem; flex-shrink: 0; }
+.row-text-block { min-width: 0; }
+.row-text-block h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+.meta-tags { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.tag { font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500; background: var(--bg-deep); color: var(--text-muted); padding: 3px 10px; border-radius: 2px; border: 1px solid var(--border-dim); }
+.tag.status-active { color: #81c784; border-color: rgba(129, 199, 132, 0.2); background: rgba(129, 199, 132, 0.03); }
+.tag.status-expired { color: #e57373; border-color: rgba(229, 115, 115, 0.2); background: rgba(229, 115, 115, 0.03); }
+.row-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.list-empty { text-align: center; padding: 60px 20px; border: 1px dashed var(--border-dim); border-radius: var(--radius-luxury); color: var(--text-dim); }
+
+/* ═══════════════════════════════════════════════════════
+   CLIENT PORTAL VIEW (PIXIESET REDESIGN)
+═══════════════════════════════════════════════════════ */
+#client-view { display: none; }
+#client-view.on { display: block; background: var(--bg-deep); }
+
+/* Sticky Nav Bar */
+.client-navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 60px; height: 80px; background: transparent;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-bottom: 1px solid transparent;
+}
+.client-navbar.scrolled { background: rgba(15,15,15,0.95); backdrop-filter: blur(25px); height: 70px; border-bottom-color: var(--border-dim); }
+.client-nav-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.client-nav-logo span { color: var(--gold-primary); font-style: italic; }
+.client-nav-session { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); font-weight: 400; }
+
+/* Luxury Editorial Hero Cover */
+.client-hero {
+  position: relative; height: 100vh; min-height: 650px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; overflow: hidden; padding: 24px;
+}
+.hero-ambient-bg {
+  position: absolute; inset: 0;
+  background: 
+    radial-gradient(circle at 15% 30%, rgba(214,175,55,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 85% 70%, rgba(214,175,55,0.03) 0%, transparent 50%),
+    linear-gradient(180deg, #161616 0%, #0f0f0f 100%);
+  z-index: 1;
+}
+.hero-canvas-lines {
+  position: absolute; inset: 0; z-index: 2; opacity: 0.4;
+  background-image: 
+    linear-gradient(var(--border-dim) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-dim) 1px, transparent 1px);
+  background-size: 80px 80px;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+  mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+}
+.hero-inner-content { position: relative; z-index: 10; max-width: 800px; animation: heroFadeIn 1s ease; }
+@keyframes heroFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.luxury-crest { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 32px; color: var(--gold-primary); opacity: 0.8; }
+.crest-line { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-primary)); }
+.crest-line.flipped { background: linear-gradient(90deg, var(--gold-primary), transparent); }
+.crest-diamond { width: 8px; height: 8px; border: 1px solid var(--gold-primary); transform: rotate(45deg); background: var(--bg-deep); }
+
+.client-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 400; line-height: 1.1;
+  color: var(--text-pure); margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+.client-hero h1 em { font-style: italic; color: var(--gold-primary); font-weight: 400; }
+.client-hero-message { font-size: 1rem; color: var(--text-muted); font-weight: 300; line-height: 1.9; max-width: 500px; margin: 0 auto 40px; }
+.client-hero-meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; gap: 0; }
+.client-hero-meta span { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-dim); padding: 0 24px; }
+.client-hero-meta span + span { border-left: 1px solid var(--border-bright); }
+
+.scroll-indicator {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 12px;
+  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-primary);
+  cursor: pointer; transition: opacity 0.2s; opacity: 0.7;
+}
+.scroll-indicator:hover { opacity: 1; }
+.scroll-indicator-arrow {
+  width: 36px; height: 36px; border: 1px solid rgba(214,175,55,0.3); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+  animation: smoothBounce 2s infinite ease-in-out;
+}
+@keyframes smoothBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+/* Quick Collection Status Bar */
+.collection-stats-bar {
+  background: var(--surface-luxury); border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border-dim);
+  padding: 24px 60px; display: flex; align-items: center; justify-content: space-between; gap: 30px; flex-wrap: wrap;
+}
+.stat-item { text-align: center; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; color: var(--gold-primary); line-height: 1; }
+.stat-lbl { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-top: 6px; font-weight: 500; }
+.stat-vertical-line { width: 1px; height: 40px; background: var(--border-dim); flex-shrink: 0; }
+
+/* The Core Photo Presentation Panel */
+.presentation-section { padding: 100px 0; background: var(--bg-deep); }
+.presentation-title-block { text-align: center; padding: 0 24px; margin-bottom: 60px; }
+.presentation-title-block h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; margin-bottom: 12px; }
+.presentation-title-block h2 em { font-style: italic; color: var(--gold-primary); }
+.presentation-title-block p { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+.presentation-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; }
+.embed-luxury-wrapper {
+  border-radius: var(--radius-luxury); overflow: hidden;
+  border: 1px solid var(--border-bright); background: #161616;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+}
+.embed-luxury-wrapper iframe { display: block; width: 100%; height: 750px; border: none; background: #161616; }
+.embed-footer-tip {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 28px; background: var(--surface-luxury); border-top: 1px solid var(--border-dim);
+  flex-wrap: wrap; gap: 16px;
+}
+.embed-footer-tip span { font-size: 0.75rem; color: var(--text-dim); }
+.embed-footer-tip a { font-size: 0.75rem; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+.embed-footer-tip a:hover { color: var(--gold-hover); }
+
+/* Downloader Outro Section */
+.outro-cta-section { background: var(--surface-luxury); border-top: 1px solid var(--border-dim); padding: 100px 24px; text-align: center; }
+.outro-cta-section h3 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 400; margin-bottom: 16px; }
+.outro-cta-section h3 em { font-style: italic; color: var(--gold-primary); }
+.outro-cta-section p { font-size: 0.95rem; color: var(--text-muted); max-width: 480px; margin: 0 auto 40px; line-height: 1.8; font-weight: 300; }
+.outro-btn-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* Luxury Portal Footer */
+.client-footer {
+  background: var(--bg-deep); border-top: 1px solid var(--border-dim);
+  padding: 40px 60px; display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px;
+}
+.footer-signature { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--text-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+.footer-signature span { color: var(--gold-primary); opacity: 0.5; }
+.footer-copyright { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); }
+
+/* ── RESPONSIVE COMPATIBILITY ── */
+@media(max-width: 768px) {
+  .client-navbar { padding: 0 24px; }
+  .steps-grid { grid-template-columns: 1fr; gap: 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .collection-stats-bar { padding: 24px; gap: 16px; justify-content: center; }
+  .stat-vertical-line { display: none; }
+  .stat-item { flex: 1 1 40%; }
+  .presentation-container { padding: 0 16px; }
+  .embed-luxury-wrapper iframe { height: 520px; }
+  .client-footer { padding: 30px 24px; flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-message"></span></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>Collection Link</h3>
+    <p class="sub">Your digital presentation link is wrapped and ready. Share this directly with your client.</p>
+    <div class="link-row">
+      <input type="text" id="share-url-input" readonly/>
+      <button class="copy-btn" id="copy-action-btn">Copy</button>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 24px; line-height: 1.4;">🔒 Complete layout config and parameters are encrypted into the delivery link directly.</p>
+    <div style="display: flex; justify-content: flex-end;">
+      <button class="btn btn-ghost btn-sm" onclick="closeShareModal()">Dismiss</button>
+    </div>
+  </div>
+</div>
+
+<div id="app-view">
+  <header class="ph-header">
+    <div class="brand-logo">RRT<span>FRAMES</span></div>
+    <span class="portal-badge">Engine Room</span>
+  </header>
+
+  <main class="ph-main">
+    <div class="ph-hero">
+      <div class="luxury-eyebrow">The Presentation Vault</div>
+      <h1>Branded Delivery<br>Made <em>Exceptional</em></h1>
+      <p>Transform raw cloud directories into bespoke, high-end galleries reminiscent of premium presentation platforms.</p>
+    </div>
+
+    <div class="section-divider">Methodology</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">I</div>
+        <h3>Target Cloud Assets</h3>
+        <p>Organize high-resolution proofs within an autonomous Google Drive folder architecture.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">II</div>
+        <h3>Authorize Read-Access</h3>
+        <p>Set folder access permissions to 'Anyone with the link can view' and grab the asset link.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">III</div>
+        <h3>Formulate Gallery</h3>
+        <p>Complete the profile canvas block below to manifest a tailored luxury layout instantly.</p>
+      </div>
+    </div>
+
+    <div class="section-divider">Generate Branded Vault</div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-group"><label>Client / Patron Identity</label><input id="form-client" placeholder="e.g. Montgomery Collection"/></div>
+        <div class="form-group"><label>Event / Project Assignment</label><input id="form-session" placeholder="e.g. High Fashion Editorial — Autumn"/></div>
+        <div class="form-group full-width"><label>Google Drive Source URL</label><input id="form-drive" type="url" placeholder="https://drive.google.com/drive/folders/..."/></div>
+        <div class="form-group"><label>Asset Volume / Photo Count (Optional)</label><input id="form-count" type="number" placeholder="e.g. 150"/></div>
+        <div class="form-group"><label>Deployment Date</label><input id="form-date" type="date"/></div>
+        <div class="form-group"><label>Vault Expiration Date (Optional)</label><input id="form-expiry" type="date"/></div>
+        <div class="form-group full-width"><label>Bespoke Message to Patron</label><textarea id="form-message" placeholder="It was an absolute honor tracking these visual frames for you..."></textarea></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost btn-sm" onclick="resetForm()">Reset Canvas</button>
+        <button class="btn btn-gold" onclick="generateCollection()">✦ Manifest Collection</button>
+      </div>
+    </div>
+
+    <div class="section-divider" style="margin-bottom: 20px;">Active Archives</div>
+    <div class="gallery-stack" id="dashboard-collection-list"></div>
+  </main>
+</div>
+
+<div id="client-view">
+  
+  <nav class="client-navbar" id="client-top-nav">
+    <div class="client-nav-logo">RRT<span>FRAMES</span></div>
+    <span class="client-nav-session" id="client-session-nav-tag"></span>
+    <a id="client-nav-download-cta" href="#" target="_blank" class="btn btn-gold btn-sm">↗ Download Collection</a>
+  </nav>
+
+  <section class="client-hero">
+    <div class="hero-ambient-bg"></div>
+    <div class="hero-canvas-lines"></div>
+    <div class="hero-inner-content">
+      <div class="luxury-crest">
+        <div class="crest-line"></div>
+        <div class="crest-diamond"></div>
+        <div class="crest-line flipped"></div>
+      </div>
+      <h1 id="client-salutation">Welcome, <em>Patron</em></h1>
+      <p class="client-hero-message" id="client-custom-message"></p>
+      <div class="client-hero-meta" id="client-meta-strip"></div>
+      
+      <a href="#presentation" class="scroll-indicator">
+        <span>Enter Presentation</span>
+        <div class="scroll-indicator-arrow">↓</div>
+      </a>
+    </div>
+  </section>
+
+  <div class="collection-stats-bar">
+    <div class="stat-item">
+      <div class="stat-val" id="stat-count-box">—</div>
+      <div class="stat-lbl">Exhibits Wrapped</div>
+    </div>
+    <div class="stat-vertical-line"></div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-year-box">—</div>
+      <div class="stat-lbl">Timeline Cycle</div>
+    </div>
+    <div class="stat-vertical-line"></div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-project-box">—</div>
+      <div class="stat-lbl">Assignment Spec</div>
+    </div>
+    <div class="stat-vertical-line"></div>
+    <div class="stat-item" style="display: flex; justify-content: flex-end;">
+      <a id="stat-action-link" href="#" target="_blank" class="btn btn-outline btn-sm">Open Workspace ↗</a>
+    </div>
+  </div>
+
+  <section class="presentation-section" id="presentation">
+    <div class="presentation-title-block">
+      <div class="luxury-eyebrow" style="margin-bottom: 12px;">Curated Proofs</div>
+      <h2>The Digital <em>Exhibition</em></h2>
+      <p id="presentation-sub-text"></p>
+    </div>
+    <div class="presentation-container">
+      <div class="embed-luxury-wrapper">
+        <div id="live-iframe-dock"></div>
+        <div class="embed-footer-tip">
+          <span>Distributed securely via RRT Frames Engine Ecosystem. Select assets to examine individual resolution specs.</span>
+          <a id="live-iframe-fallback-link" href="#" target="_blank">Direct Native Link ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="outro-cta-section">
+    <div class="luxury-crest" style="margin-bottom: 20px;">
+      <div class="crest-line" style="width: 40px;"></div>
+      <div class="crest-diamond"></div>
+      <div class="crest-line flipped" style="width: 40px;"></div>
+    </div>
+    <h3>Preserve Your <em>Legacy</em></h3>
+    <p>Archive the entire composition portfolio straight onto your native systems at maximum resolution density.</p>
+    <div class="outro-btn-group">
+      <a id="outro-primary-download" href="#" target="_blank" class="btn btn-gold btn-lg">↗ Acquire Full Collection</a>
+      <a id="outro-secondary-view" href="#" target="_blank" class="btn btn-ghost btn-lg">Review Repository</a>
+    </div>
+  </div>
+
+  <footer class="client-footer">
+    <div class="footer-signature">RRT<span>FRAMES</span></div>
+    <span class="footer-copyright">All Rights Reserved · Powered via Google Drive Layer Integration</span>
+  </footer>
+</div>
+
+<script>
+var localVault = [];
+
+function writeToStorage() {
+  try { localStorage.setItem('rrt_vault_v1', JSON.stringify(localVault)); } catch(err) {}
+}
+
+function loadFromStorage() {
+  try {
+    var stored = localStorage.getItem('rrt_vault_v1');
+    localVault = stored ? JSON.parse(stored) : [];
+  } catch(err) { localVault = []; }
+}
+
+function escapeString(str) {
+  return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function prettifyDate(d) {
+  if (!d) return '';
+  var parts = d.split('-');
+  return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function pullYear(d) {
+  if (!d) return '';
+  return d.split('-')[0];
+}
+
+function triggerToast(text) {
+  var box = document.getElementById('toast');
+  document.getElementById('toast-message').textContent = text;
+  box.classList.add('show');
+  setTimeout(function() { box.classList.remove('show'); }, 2800);
+}
+
+function formatDriveEmbedUrl(rawUrl) {
+  var expressions = rawUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  return expressions ? 'https://drive.google.com/embeddedfolderview?id=' + expressions[1] + '#grid' : rawUrl;
+}
+
+function generateCollection() {
+  var client = document.getElementById('form-client').value.trim();
+  var session = document.getElementById('form-session').value.trim();
+  var drive = document.getElementById('form-drive').value.trim();
+  var count = document.getElementById('form-count').value.trim();
+  var date = document.getElementById('form-date').value;
+  var expiry = document.getElementById('form-expiry').value;
+  var msg = document.getElementById('form-message').value.trim();
+
+  if (!client) { triggerToast('Patron name declaration required.'); return; }
+  if (!drive) { triggerToast('Google Drive target link required.'); return; }
+  if (drive.indexOf('drive.google.com') === -1) { triggerToast('Please specify a verified Google Drive URL.'); return; }
+
+  var uniquelyIdentified = 'rrt_' + Date.now();
+  localVault.unshift({
+    id: uniquelyIdentified, client: client, session: session,
+    drive: drive, count: count, date: date, expiry: expiry, msg: msg
+  });
+
+  writeToStorage();
+  resetForm();
+  renderAdminDashboardList();
+  triggerToast('Bespoke client gallery registered successfully.');
+}
+
+function resetForm() {
+  ['form-client', 'form-session', 'form-drive', 'form-count', 'form-date', 'form-expiry', 'form-message'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+}
+
+function renderAdminDashboardList() {
+  var displayArea = document.getElementById('dashboard-collection-list');
+  if (!localVault.length) {
+    displayArea.innerHTML = '<div class="list-empty"><p>No active luxury collections compiled inside local terminal.</p></div>';
+    return;
+  }
+
+  displayArea.innerHTML = localVault.map(function(item) {
+    var checkExpired = item.expiry && new Date(item.expiry) < new Date();
+    var stateTag = checkExpired ? '<span class="tag status-expired">Expired Vault</span>' : '<span class="tag status-active">Live Presentation</span>';
+    var setDateTag = item.date ? '<span class="tag">' + prettifyDate(item.date) + '</span>' : '';
+
+    return '<div class="gallery-row">'
+      + '<div class="row-main-info">'
+      + '  <div class="row-icon">◈</div>'
+      + '  <div class="row-text-block">'
+      + '    <h3>' + escapeString(item.client) + (item.session ? ' <span style="color:var(--gold-primary)">•</span> ' + escapeString(item.session) : '') + '</h3>'
+      + '    <div class="meta-tags">' + stateTag + setDateTag + '</div>'
+      + '  </div>'
+      + '</div>'
+      + '<div class="row-actions">'
+      + '  <button class="btn btn-outline btn-sm" onclick="previewGeneratedPortal(\'' + item.id + '\')">Preview</button>'
+      + '  <button class="btn btn-gold btn-sm" onclick="openShareDialogue(\'' + item.id + '\')">Share Link</button>'
+      + '  <button class="btn btn-danger btn-sm" onclick="purgeCollectionItem(\'' + item.id + '\')">✕</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function purgeCollectionItem(id) {
+  if (!confirm('Are you sure you want to permanently delete this exhibition profile?')) return;
+  localVault = localVault.filter(function(x) { return x.id !== id; });
+  writeToStorage();
+  renderAdminDashboardList();
+  triggerToast('Collection removed from admin ledger.');
+}
+
+function assembleEncryptedUrl(id) {
+  var targetRecord = localVault.find(function(x) { return x.id === id; });
+  if (!targetRecord) return '';
+  var condensedToken = btoa(unescape(encodeURIComponent(JSON.stringify(targetRecord))));
+  return location.href.split('?')[0] + '?vault=' + encodeURIComponent(condensedToken);
+}
+
+function openShareDialogue(id) {
+  document.getElementById('share-url-input').value = assembleEncryptedUrl(id);
+  document.getElementById('overlay').classList.add('open');
+  var actionButton = document.getElementById('copy-action-btn');
+  actionButton.textContent = 'Copy Link';
+  actionButton.className = 'copy-btn';
+  actionButton.onclick = function() { performClipboardCopy(); };
+}
+
+function closeShareModal() { document.getElementById('overlay').classList.remove('open'); }
+
+function performClipboardCopy() {
+  var destinationText = document.getElementById('share-url-input').value;
+  navigator.clipboard.writeText(destinationText).then(function() {
+    var elBtn = document.getElementById('copy-action-btn');
+    elBtn.textContent = '✓ Copied'; elBtn.className = 'copy-btn ok';
+    triggerToast('Secure package string saved to clipboard.');
+  }).catch(function() {
+    document.getElementById('share-url-input').select();
+    document.execCommand('copy');
+    triggerToast('Secure package string saved to clipboard.');
+  });
+}
+
+function previewGeneratedPortal(id) {
+  var compiledUrl = assembleEncryptedUrl(id);
+  if (compiledUrl) window.open(compiledUrl, '_blank');
+}
+
+function deployLuxuriousPatronView(dataObj) {
+  document.getElementById('app-view').classList.add('off');
+  document.getElementById('client-view').classList.add('on');
+  document.title = (dataObj.client || 'Curated Portfolio') + ' // RRT FRAMES';
+
+  var extractedFirstName = (dataObj.client || '').split(/[\s&,]/)[0] || dataObj.client;
+  document.getElementById('client-salutation').innerHTML = 'Hello, <em>' + escapeString(extractedFirstName) + '</em>';
+  document.getElementById('client-custom-message').textContent = dataObj.msg || 'Your curated digital frames are captured, processed, and ready for showcase. We invite you to live through the artistic moments preserved below.';
+
+  var metadataCollection = [];
+  if (dataObj.session) metadataCollection.push(escapeString(dataObj.session));
+  if (dataObj.date) metadataCollection.push(prettifyDate(dataObj.date));
+  if (dataObj.expiry) metadataCollection.push('Archived until ' + prettifyDate(dataObj.expiry));
+  document.getElementById('client-meta-strip').innerHTML = metadataCollection.map(function(m) { return '<span>' + m + '</span>'; }).join('');
+
+  // Setup Statistics Data Matrix
+  document.getElementById('stat-count-box').textContent = dataObj.count || '∞';
+  document.getElementById('stat-year-box').textContent = dataObj.date ? pullYear(dataObj.date) : '—';
+  document.getElementById('stat-project-box').textContent = dataObj.session ? dataObj.session.split(/[—\-]/)[0].trim() : 'Curated';
+
+  document.getElementById('client-session-nav-tag').textContent = dataObj.session || '';
+  document.getElementById('presentation-sub-text').textContent = (dataObj.client || '') + (dataObj.session ? ' — ' + dataObj.session : '');
+
+  // Render Drive Core Engine Iframe
+  document.getElementById('live-iframe-dock').innerHTML = '<iframe src="' + formatDriveEmbedUrl(dataObj.drive) + '" allowfullscreen></iframe>';
+
+  // Map Redirect Anchors
+  var elementsToInject = ['client-nav-download-cta', 'stat-action-link', 'live-iframe-fallback-link', 'outro-primary-download', 'outro-secondary-view'];
+  elementsToInject.forEach(function(targetId) {
+    var elementNode = document.getElementById(targetId);
+    if (elementNode) elementNode.href = dataObj.drive;
+  });
+}
+
+/* ── CINEMATIC NAVIGATION CONTROLLER ── */
+window.addEventListener('scroll', function() {
+  var headerNavigationElement = document.getElementById('client-top-nav');
+  if (headerNavigationElement) {
+    if (window.scrollY > 50) headerNavigationElement.classList.add('scrolled');
+    else headerNavigationElement.classList.remove('scrolled');
+  }
+});
+
+/* ── SMOOTH SCROLL ROUTINE ── */
+document.addEventListener('click', function(event) {
+  var anchorTrigger = event.target.closest('a[href^="#"]');
+  if (anchorTrigger) {
+    event.preventDefault();
+    var matchingDestination = document.querySelector(anchorTrigger.getAttribute('href'));
+    if (matchingDestination) matchingDestination.scrollIntoView({ behavior: 'smooth' });
+  }
+});
+
+// INITIALIZE RUNTIME APP
+loadFromStorage();
+var processParams = new URLSearchParams(location.search);
+var internalVaultToken = processParams.get('vault');
+
+if (internalVaultToken) {
+  try {
+    var structuralPayload = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(internalVaultToken)))));
+    deployLuxuriousPatronView(structuralPayload);
+  } catch(error) {
+    document.getElementById('app-view').innerHTML = '<main style="text-align:center; padding:150px 24px;"><div style="font-size:3rem; margin-bottom:20px; color:var(--gold-primary)">◈</div><h2 style="font-family:\'Playfair Display\', serif; font-weight:400; font-size:2rem; margin-bottom:12px;">Collection Unavailable</h2><p style="color:var(--text-muted); font-size:0.9rem;">The presentation parameters are corrupted or access timestamp has passed.</p></main>';
+  }
+} else {
+  renderAdminDashboardList();
+}
+
+document.getElementById('overlay').addEventListener('click', function(e) { if (e.target === this) closeShareModal(); });
+</script>
+</body>
+</html>
