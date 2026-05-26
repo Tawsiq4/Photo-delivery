@@ -184,7 +184,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .list-empty { text-align: center; padding: 60px 20px; border: 1px dashed var(--border-dim); border-radius: var(--radius-luxury); color: var(--text-dim); }
 
 /* ═══════════════════════════════════════════════════════
-   PATRON PORTAL VIEW (PIXIESET REDESIGN)
+   PATRON PORTAL VIEW
 ═══════════════════════════════════════════════════════ */
 #client-view { display: none; }
 #client-view.on { display: block; background: var(--bg-deep); }
@@ -270,7 +270,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 .stat-lbl { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-top: 6px; font-weight: 500; }
 .stat-vertical-line { width: 1px; height: 40px; background: var(--border-dim); flex-shrink: 0; }
 
-/* ── HIGH-END EDITORIAL MASONRY SECTIONS (NO FILENAMES) ── */
+/* ── HIGH-END EDITORIAL MASONRY SECTIONS ── */
 .presentation-section { padding: 100px 0; background: var(--bg-deep); }
 .presentation-title-block { text-align: center; padding: 0 24px; margin-bottom: 60px; }
 .presentation-title-block h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; margin-bottom: 12px; }
@@ -497,7 +497,6 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 </div>
 
 <script>
-// YOUR VERIFIED LIVE API KEY INTEGRATED BELOW
 var GOOGLE_DRIVE_API_KEY = "AIzaSyAFacUfJs1S0XhkaQrd9Tagx-f3HljXQV4";
 
 var localVault = [];
@@ -648,37 +647,25 @@ function previewGeneratedPortal(id) {
 function launchLightbox(imageSrc) {
   var overlay = document.getElementById('lightbox-overlay');
   var targetImg = document.getElementById('lightbox-target-img');
-  
-  // Set the clean high-resolution source asset
   targetImg.src = imageSrc;
-  
-  // Smooth overlay initiation
   overlay.style.display = 'flex';
-  setTimeout(function() {
-    overlay.classList.add('active');
-  }, 10);
+  setTimeout(function() { overlay.classList.add('active'); }, 10);
 }
 
 function closeLightbox(event) {
-  // Prevent inner container clicks from prematurely dismissing view matrix
   if (event.target.id === 'lightbox-target-img') return;
-  
   var overlay = document.getElementById('lightbox-overlay');
   overlay.classList.remove('active');
-  
   setTimeout(function() {
     overlay.style.display = 'none';
     document.getElementById('lightbox-target-img').src = '';
   }, 350);
 }
 
-// Map hardware key closures for enhanced professional look
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     var overlay = document.getElementById('lightbox-overlay');
-    if (overlay.classList.contains('active')) {
-      closeLightbox(e);
-    }
+    if (overlay.classList.contains('active')) { closeLightbox(e); }
   }
 });
 
@@ -695,25 +682,29 @@ function executePremiumMasonryMining(driveUrl, targetCount) {
   var frameworkVariations = ['span-normal', 'span-wide', 'span-tall', 'span-hero'];
   dockElement.innerHTML = '<div style="text-align:center; padding:60px; color:var(--gold-primary); font-size:0.9rem; letter-spacing:0.1em; text-transform:uppercase;">Curating Exhibition Frames...</div>';
 
-  var apiUrl = "https://www.googleapis.com/drive/v3/files?q='" + folderId + "'+in+parents+and+mimeType+contains+'image/'&key=" + GOOGLE_DRIVE_API_KEY + "&fields=files(id)&pageSize=100";
+  // FIX: Added 'pageSize=1000' and 'trashed=false' queries to bypass Google's default low image display limits
+  var apiUrl = "https://www.googleapis.com/drive/v3/files?q='" + folderId + "'+in+parents+and+mimeType+contains+'image/'+and+trashed=false&key=" + GOOGLE_DRIVE_API_KEY + "&fields=files(id)&pageSize=1000";
 
   fetch(apiUrl)
     .then(response => response.json())
     .then(data => {
       if (data.files && data.files.length > 0) {
         var htmlContent = '';
+        
+        // Updates metrics badge to show the actual exact photo count found inside the folder
+        document.getElementById('stat-count-box').textContent = data.files.length;
+        
         data.files.forEach(function(file) {
           var randomLayoutSize = frameworkVariations[Math.floor(Math.random() * frameworkVariations.length)];
           var directImgLink = "https://lh3.googleusercontent.com/d/" + file.id + "=s1600";
           
-          // Attached standard native click trigger loops into layout rendering block
           htmlContent += '<div class="frame-item ' + randomLayoutSize + '" onclick="launchLightbox(\'' + directImgLink + '\')">'
-            + '  <img src="' + directImgLink + '" alt="RRT FRAMES Curated Portfolio Exhibit" loading="lazy" />'
+            + '  <img src="' + directImgLink + '" alt="RRT FRAMES Portfolio Exhibit" loading="lazy" />'
             + '</div>';
         });
         dockElement.innerHTML = htmlContent;
       } else {
-        dockElement.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-muted); border:1px dashed var(--border-dim);">No visible image formats discovered inside this directory channel. Ensure files are directly uploaded to this folder level.</div>';
+        dockElement.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-muted); border:1px dashed var(--border-dim);">No visible images discovered inside this folder channel. Make sure images are shared publicly on Google Drive.</div>';
       }
     })
     .catch(err => {
@@ -737,17 +728,15 @@ function deployLuxuriousPatronView(dataObj) {
   document.getElementById('client-meta-strip').innerHTML = metadataCollection.map(function(m) { return '<span>' + m + '</span>'; }).join('');
 
   // Setup Statistics Data Matrix
-  document.getElementById('stat-count-box').textContent = dataObj.count || '∞';
+  document.getElementById('stat-count-box').textContent = dataObj.count || '—';
   document.getElementById('stat-year-box').textContent = dataObj.date ? pullYear(dataObj.date) : '—';
   document.getElementById('stat-project-box').textContent = dataObj.session ? dataObj.session.split(/[—\-]/)[0].trim() : 'Curated';
 
   document.getElementById('client-session-nav-tag').textContent = dataObj.session || '';
   document.getElementById('presentation-sub-text').textContent = (dataObj.client || '') + (dataObj.session ? ' — ' + dataObj.session : '');
 
-  // Fire up the direct image retrieval layer
   executePremiumMasonryMining(dataObj.drive, dataObj.count);
 
-  // Map Redirect Anchors
   var elementsToInject = ['client-nav-download-cta', 'stat-action-link', 'outro-primary-download', 'outro-secondary-view'];
   elementsToInject.forEach(function(targetId) {
     var elementNode = document.getElementById(targetId);
