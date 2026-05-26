@@ -253,7 +253,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 
 .presentation-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; }
 
-/* Pure CSS Grid Layout with implicit dynamic random row spanning options */
+/* CSS Grid Layout for dynamic row spanning options */
 .luxury-masonry-canvas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -262,7 +262,7 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
   grid-auto-flow: dense;
 }
 
-/* Premium Dynamic Containers — Filenames are completely excluded from compilation */
+/* Premium Dynamic Containers — Filenames are 100% excluded */
 .frame-item {
   position: relative;
   background: #111;
@@ -283,11 +283,9 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
   box-shadow: 0 20px 40px rgba(0,0,0,0.6);
   transform: translateY(-4px);
 }
-.frame-item:hover img {
-  transform: scale(1.05);
-}
+.frame-item:hover img { transform: scale(1.05); }
 
-/* Structural Layout Variations for high-end staggered look */
+/* Structural Layout Sizing Variations */
 .span-normal { grid-column: span 1; grid-row: span 1; }
 .span-wide { grid-column: span 2; grid-row: span 1; }
 .span-tall { grid-column: span 1; grid-row: span 2; }
@@ -465,6 +463,9 @@ a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 </div>
 
 <script>
+// YOUR VERIFIED LIVE API KEY INTEGRATED BELOW
+var GOOGLE_DRIVE_API_KEY = "AIzaSyAFacUfJs1S0XhkaQrd9Tagx-f3HljXQV4";
+
 var localVault = [];
 
 function writeToStorage() {
@@ -609,7 +610,7 @@ function previewGeneratedPortal(id) {
   if (compiledUrl) window.open(compiledUrl, '_blank');
 }
 
-/* ── HIGH-END MASONRY DIRECT LOADER ENGINE ── */
+/* ── HIGH-END MASONRY AUTOMATED LIVE API FETCH ENGINE ── */
 function executePremiumMasonryMining(driveUrl, targetCount) {
   var dockElement = document.getElementById('live-masonry-dock');
   var folderId = extractFolderId(driveUrl);
@@ -619,33 +620,35 @@ function executePremiumMasonryMining(driveUrl, targetCount) {
     return;
   }
 
-  // Define editorial masonry spatial variation options
   var frameworkVariations = ['span-normal', 'span-wide', 'span-tall', 'span-hero'];
-  var generatedFramesHtml = '';
-  var itemsLimit = parseInt(targetCount) || 12;
+  dockElement.innerHTML = '<div style="text-align:center; padding:60px; color:var(--gold-primary); font-size:0.9rem; letter-spacing:0.1em; text-transform:uppercase;">Curating Exhibition Frames...</div>';
 
-  // We loop directly into Google's Public Direct-Asset API to display your real pictures
-  // while omitting filenames entirely.
-  for (var i = 0; i < itemsLimit; i++) {
-    var assignedSize = frameworkVariations[Math.floor(Math.random() * frameworkVariations.length)];
-    
-    // Fallback collection pool of luxury fashion presets to populate the random view natively if folder sync takes a moment
-    var elegantPresets = [
-      "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&q=80&w=1000",
-      "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000",
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=1000",
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000"
-    ];
-    
-    var dynamicSource = elegantPresets[i % elegantPresets.length] + "&sig=" + (folderId.substring(0,5) + i);
+  var apiUrl = "https://www.googleapis.com/drive/v3/files?q='" + folderId + "'+in+parents+and+mimeType+contains+'image/'&key=" + GOOGLE_DRIVE_API_KEY + "&fields=files(id)&pageSize=100";
 
-    // Build frame components. File names are 100% omitted for aesthetic elegance.
-    generatedFramesHtml += '<div class="frame-item ' + assignedSize + '">'
-      + '  <img src="' + dynamicSource + '" alt="RRT FRAMES Masterpiece Portfolio Entry" loading="lazy" />'
-      + '</div>';
-  }
-
-  dockElement.innerHTML = generatedFramesHtml;
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      if (data.files && data.files.length > 0) {
+        var htmlContent = '';
+        data.files.forEach(function(file) {
+          // Choose an editorial display box proportion setting randomly
+          var randomLayoutSize = frameworkVariations[Math.floor(Math.random() * frameworkVariations.length)];
+          
+          // Using the specialized high-resolution Google usercontent proxy to completely drop out title blocks
+          var directImgLink = "https://lh3.googleusercontent.com/d/" + file.id + "=s1600";
+          
+          htmlContent += '<div class="frame-item ' + randomLayoutSize + '">'
+            + '  <img src="' + directImgLink + '" alt="RRT FRAMES Masterpiece Portfolio" loading="lazy" />'
+            + '</div>';
+        });
+        dockElement.innerHTML = htmlContent;
+      } else {
+        dockElement.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-muted); border:1px dashed var(--border-dim);">No visible image formats discovered inside this directory channel. Ensure files are directly uploaded to this folder level.</div>';
+      }
+    })
+    .catch(err => {
+      dockElement.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-muted); border:1px dashed var(--border-dim);">Error establishing connection protocols with Google Drive Cloud Storage.</div>';
+    });
 }
 
 function deployLuxuriousPatronView(dataObj) {
@@ -671,7 +674,7 @@ function deployLuxuriousPatronView(dataObj) {
   document.getElementById('client-session-nav-tag').textContent = dataObj.session || '';
   document.getElementById('presentation-sub-text').textContent = (dataObj.client || '') + (dataObj.session ? ' — ' + dataObj.session : '');
 
-  // Initialize pure layout extraction engine
+  // Fire up the direct image retrieval layer
   executePremiumMasonryMining(dataObj.drive, dataObj.count);
 
   // Map Redirect Anchors
